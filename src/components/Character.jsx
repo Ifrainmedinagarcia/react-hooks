@@ -24,10 +24,9 @@ const Character = () => {
     useEffect(() => {
         fetch('https://rickandmortyapi.com/api/character')
             .then((response) => response.json())
-            .then((response) => {
-                setCharacters(response.results)
+            .then((data) => {
+                setCharacters(data.results)
             })
-
     }, [])
 
     const handleClick = (favorites) => {
