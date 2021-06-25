@@ -1,0 +1,17 @@
+import { useEffect, useState } from "react";
+
+const useCharacter = (url) => {
+    const [characters, setCharacters] = useState([])
+
+    useEffect(() => {
+        fetch(url)
+            .then((response) => response.json())
+            .then((data) => {
+                setCharacters(data.results)
+            })
+    }, [])
+
+    return { characters }
+}
+
+export default useCharacter

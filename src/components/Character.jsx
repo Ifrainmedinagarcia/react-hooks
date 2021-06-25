@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useReducer, useMemo } from 'react'
+import React, { useState, useReducer, useMemo, useRef, useCallback } from 'react'
+import useCharacter from '../hooks/useCharacter'
+import Search from './Search'
 
 const initialState = {
     favorites: []
@@ -17,17 +19,10 @@ const favoriteReducer = (state, action) => {
 }
 
 const Character = () => {
-    const [characters, setCharacters] = useState([])
     const [favorites, dispatch] = useReducer(favoriteReducer, initialState)
     const [search, setSearch] = useState('')
-
-    useEffect(() => {
-        fetch('https://rickandmortyapi.com/api/character')
-            .then((response) => response.json())
-            .then((data) => {
-                setCharacters(data.results)
-            })
-    }, [])
+    const searchInput = useRef(null)
+    const { characters } = useCharacter('https://rickandmortyapi.com/api/character')
 
     const handleClick = (favorites) => {
         dispatch(
@@ -38,9 +33,15 @@ const Character = () => {
         )
     }
 
-    const handleSearch = (evt) => {
-        setSearch(evt.target.value)
-    }
+    const handleSearch = useCallback(() => {
+        setSearch(searchInput.current.value)
+    }, [])
+
+    const filterUsers = useMemo(() => {
+        return characters.filter(user => (
+            user.name.toLowerCase().includes(search.toLowerCase())
+        ))
+    }, [characters, search])
 
     return (
         <div className='Characters'>
@@ -53,10 +54,12 @@ const Character = () => {
                     </li>
                 ))
             }
-            <div className='Search'>
-                <input onChange={handleSearch} type='text' value={search} />
-            </div>
-            {characters.map(character => (
+            <Search
+                search={search}
+                searchInput={searchInput}
+                handleSearch={handleSearch}
+            />
+            {filterUsers.map(character => (
                 <div key={character.id}>
                     <h2>{character.name}</h2>
                     <button onClick={() => handleClick(character)}>Add to favorites</button>
